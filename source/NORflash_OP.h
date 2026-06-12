@@ -8,5 +8,6 @@ void Chip_Erase();
 void FormatNor();
 //void WriteFlash(u32 address,u8 *buffer,u32 size);
 //void IWRAM_CODE WriteFlash_with32word(u32 address,u8 *buffer,u32 size);
+void WriteFlash_with64word(u32 address,u8 *buffer,u32 size);
 u32 Loadfile2NOR(TCHAR *filename, u32 NORaddress,u16 have_patch,u8 SAVEMODE);
 u32 GetFileListFromNor(void);
