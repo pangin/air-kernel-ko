@@ -12,7 +12,6 @@
 #include "ezkernel.h"
 #include "draw.h"
 #include "Ezcard_OP.h"
-#include "deair_FW3.h"
 
 extern u32 FAT_table_buffer[FAT_table_size/4]EWRAM_BSS;
 
@@ -528,7 +527,8 @@ void IWRAM_CODE Check_FW_update(/*u16 Current_FW_ver,u16 Built_in_ver*/)
 	//
 	//if((DEair_FW_readver & 0xF000) == 0xC000){
 		//if((DEair_FW_ver < LX16_FW_built_in_ver)   /*|| (keys & KEY_L) */ ){
-			FW_update(DEair_FW_readver,LX16_FW_built_in_ver,deair_FW3_bin,deair_FW3_bin_size,LX16_FW_crc32,LX16_wirte_address);
+			/* FPGA bitstream is read from the kernel image region at 0x08195000 (byte-identical copy of deair_FW3.bin, CRC32-gated by LX16_FW_crc32). */
+			FW_update(DEair_FW_readver,LX16_FW_built_in_ver,LX16_newomega_top_bin_address,LX16_newomega_top_bin_size,LX16_FW_crc32,LX16_wirte_address);
 		//}
 	//}		
 }

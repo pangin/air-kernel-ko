@@ -741,7 +741,11 @@ u32 Change2cht_folder(u32 chtname)
 	{
 		sprintf(currentpath,"/CHEAT/Eng/%s",folder_name);
 	}
-	else{		
+	else if(gl_select_lang == 0xE3E3)//korean
+	{
+		sprintf(currentpath,"/CHEAT/Kor/%s",folder_name);
+	}
+	else{//chinese
 		sprintf(currentpath,"/CHEAT/Chn/%s",folder_name);
 	}
 	res=f_chdir(currentpath);		

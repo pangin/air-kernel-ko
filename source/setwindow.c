@@ -102,10 +102,14 @@ u32 Setting_window(void)
 	{
 		language_sel = 0;
 	}
+	else if(gl_select_lang == 0xE3E3)
+	{
+		language_sel = 2;
+	}
 	else
 	{
 		language_sel = 1;
-	}	
+	}
 	v_reset = Read_SET_info(assress_v_reset);
 
 	v_cheat = Read_SET_info(assress_v_cheat);
@@ -148,12 +152,16 @@ u32 Setting_window(void)
 			//					
 			sprintf(msg,"%s",gl_language);
 			DrawHZText12(msg,0,set_offset,y_offset+line_x*2,gl_color_selected,1);			
+				//3 options on one row: ENG(18px) / 中文(24px) / 한국어(36px); last label ends at x_offset+106+36 = 200 < 202 (SET button bg)
 				Draw_select_icon(x_offset,y_offset+line_x*2,(language_sel == 0x0));
-				Draw_select_icon(x_offset+12*6,y_offset+line_x*2,(language_sel == 0x1));	
+				Draw_select_icon(x_offset+44,y_offset+line_x*2,(language_sel == 0x1));
+				Draw_select_icon(x_offset+94,y_offset+line_x*2,(language_sel == 0x2));
 				sprintf(msg,"%s",gl_en_lang);
-				DrawHZText12(msg,0,x_offset+15,y_offset+line_x*2,((language_sel==0)&&currstate&& (2== select))?gl_color_selected:gl_color_text,1);
+				DrawHZText12(msg,0,x_offset+12,y_offset+line_x*2,((language_sel==0)&&currstate&& (2== select))?gl_color_selected:gl_color_text,1);
 				sprintf(msg,"%s",gl_zh_lang);
-				DrawHZText12(msg,0,x_offset+12*6+15,y_offset+line_x*2,((language_sel==1)&&currstate&& (2== select))?gl_color_selected:gl_color_text,1);			
+				DrawHZText12(msg,0,x_offset+56,y_offset+line_x*2,((language_sel==1)&&currstate&& (2== select))?gl_color_selected:gl_color_text,1);
+				sprintf(msg,"%s",gl_ko_lang);
+				DrawHZText12(msg,0,x_offset+106,y_offset+line_x*2,((language_sel==2)&&currstate&& (2== select))?gl_color_selected:gl_color_text,1);
 			
 			//
 			VBlankIntrWait();			
@@ -490,7 +498,9 @@ u32 Setting_window(void)
 						}
 						else if(select ==2) //lang
 						{
-							language_sel = 1;								
+							if(language_sel<2){
+								language_sel ++;
+							}
 						}
 						else if(select ==3)//auto save
 						{
@@ -521,8 +531,10 @@ u32 Setting_window(void)
 						}
 						else if(select ==2) //lang
 						{
-								language_sel = 0;
-						}						
+							if(language_sel){
+								language_sel --;
+							}
+						}
 						else if(select ==3)//auto save
 						{
 								auto_save_pos = 0;
@@ -610,12 +622,15 @@ void save_setw_info(void)
 {
 	u32 address;
 		
-	if(language_sel == 0x0){//english						
+	if(language_sel == 0x0){//english
 		SET_info_buffer[assress_language] = 0xE1E1;
 	}
-	else{					
+	else if(language_sel == 0x2){//korean
+		SET_info_buffer[assress_language] = 0xE3E3;
+	}
+	else{//chinese
 		SET_info_buffer[assress_language] = 0xE2E2;
-	}	
+	}
 	
 	SET_info_buffer[assress_v_reset] = v_reset;
 	SET_info_buffer[assress_v_cheat] = v_cheat;	

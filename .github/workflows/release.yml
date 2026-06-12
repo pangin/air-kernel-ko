@@ -1,0 +1,135 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*-ko.*']
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    name: Offline tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Font header structural checks
+        run: python3 tests/check_fonts.py
+
+      - name: Language table checks (UTF-8 / parity / width budgets)
+        run: python3 tests/check_lang.py
+
+      - name: Host renderer tests (ASan/UBSan)
+        run: |
+          command -v clang >/dev/null 2>&1 || { sudo apt-get update && sudo apt-get install -y clang; }
+          make -C tests/host test CC=clang
+
+      - name: link_kernel.py self-test
+        run: bash scripts/selftest_link_kernel.sh
+
+  build:
+    name: GBA kernel build (devkitARM)
+    needs: test
+    runs-on: ubuntu-latest
+    # See ci.yml: `latest` is the supported devkitPro image tag.
+    container: devkitpro/devkitarm:latest
+    env:
+      DEVKITPRO: /opt/devkitpro
+      DEVKITARM: /opt/devkitpro/devkitARM
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ensure python3 in container
+        run: |
+          if ! command -v python3 >/dev/null 2>&1; then
+            apt-get update
+            apt-get install -y --no-install-recommends python3
+          fi
+          python3 --version
+
+      - name: Stamp release version (from the pushed tag)
+        # GITHUB_REF_NAME == the tag (e.g. v1.04-ko.1); gen_version.py
+        # resolves it with top priority, so the binary carries the release
+        # version, not a dev string.
+        run: |
+          python3 tools/gen_version.py
+          echo "resolved version: $(python3 tools/gen_version.py --check)"
+
+      - name: Build kernel (.gba)
+        run: |
+          export PATH="$DEVKITPRO/tools/bin:$DEVKITARM/bin:$PATH"
+          make
+          ls -l *.gba
+
+      - name: Kernel size guard (1 MiB hard limit)
+        run: |
+          GBA=$(ls *.gba | head -n1)
+          SIZE=$(stat -c %s "$GBA")
+          echo "$GBA: $SIZE bytes (limit 1048576)"
+          if [ "$SIZE" -gt 1048576 ]; then
+            echo "FAIL: kernel exceeds the 0x100000 (1 MiB) hard limit"
+            exit 1
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kernel-gba
+          path: '*.gba'
+          if-no-files-found: error
+
+  release:
+    name: Package & publish GitHub Release
+    needs: [test, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: kernel-gba
+
+      - name: Link kernel + image.bin
+        run: |
+          GBA=$(ls *.gba | head -n1)
+          python3 tools/link_kernel.py "$GBA" image.bin -o ezairkernel.bin
+
+      - name: Verify artifact sizes
+        run: |
+          GBA=$(ls *.gba | head -n1)
+          GBA_SIZE=$(stat -c %s "$GBA")
+          BIN_SIZE=$(stat -c %s ezairkernel.bin)
+          echo "$GBA: $GBA_SIZE bytes; ezairkernel.bin: $BIN_SIZE bytes"
+          [ "$GBA_SIZE" -le 1048576 ] || { echo "FAIL: kernel > 1 MiB"; exit 1; }
+          [ "$BIN_SIZE" -eq 2123424 ] || { echo "FAIL: ezairkernel.bin != 2123424 bytes"; exit 1; }
+
+      - name: Prepare release assets
+        run: |
+          mv ezairkernel.bin "ezairkernel-${GITHUB_REF_NAME}.bin"
+          sha256sum *.gba "ezairkernel-${GITHUB_REF_NAME}.bin" > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          generate_release_notes: true
+          body: |
+            EZ-FLASH Air 한글 커널 릴리스 `${{ github.ref_name }}`
+
+            **설치**: `ezairkernel-${{ github.ref_name }}.bin`을 `ezairkernel.bin`으로
+            이름을 바꿔 SD 카드 루트에 복사한 뒤 EZ-FLASH Air의 커널 업데이트
+            절차를 따르세요.
+
+            버전 체계는 [VERSIONING.md](https://github.com/${{ github.repository }}/blob/korean/VERSIONING.md)를 참고하세요.
+          files: |
+            ezairkernel-${{ github.ref_name }}.bin
+            *.gba
+            SHA256SUMS.txt

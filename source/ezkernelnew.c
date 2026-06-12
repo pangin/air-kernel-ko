@@ -67,7 +67,6 @@ FATFS EZcardFs;
 FILINFO fileinfo;
 DIR dir;
 FIL gfile;
-u8 dwName;
 
 u16 gl_reset_on;
 //u16 gl_rts_on;
@@ -590,7 +589,6 @@ void Filename_loop(u32 shift,u32 show_offset,u32 file_select,u32 haveThumbnail)
 	int namelen;
 	static u32 orgtt = 123455;
 	u32 timeout = 20;
-	//u8 dwName=0;	
 	char msg[128];
 	char temp_filename[100];
 	
@@ -628,36 +626,28 @@ void Filename_loop(u32 shift,u32 show_offset,u32 file_select,u32 haveThumbnail)
 		if(file_select < need_show_folder)
 		{
 			strncpy(temp_filename,pFolder[show_offset+file_select].filename , 100 );
+			temp_filename[99] = 0;
 		
 		}
 		else
 		{
 			strncpy(temp_filename,pFilename_buffer[offset+file_select-need_show_folder].filename , 100 );		
+			temp_filename[99] = 0;
 		}
 		
 		namelen = strlen(temp_filename);
 		if(namelen >(char_num-1) ) 
 		{
 			u32  tt = ((shift-timeout)/8)% (namelen);
+			/* snap forward past UTF-8 continuation bytes so the window starts on a lead byte (NUL stops the loop) */
+			while((temp_filename[tt] & 0xC0) == 0x80)
+				tt++;
 			if(orgtt!= tt )
-			{	
+			{
 				orgtt = tt ;
 				sprintf(msg,"%s   ",temp_filename + tt);
 				strncpy(msg+strlen(msg) ,temp_filename , 128 - strlen(msg) );
-				if(temp_filename[tt] > 0x80)
-				{						
-					if(dwName)
-					{
-						msg[0] = 0x20;
-						dwName = 0;
-					}
-					else
-						dwName = 1;
-				}
-				else
-					dwName = 0;
-					
-				Clear(17,20 + file_select*14,(char_num)*6,13,gl_color_selectBG_sd,1);	
+				Clear(17,20 + file_select*14,(char_num)*6,13,gl_color_selectBG_sd,1);
 				DrawHZText12(msg, char_num-1, 1+16, y_offset + file_select*14, gl_color_text,1);
 			}	
 		}
@@ -1097,7 +1087,7 @@ void CheckLanguage(void)
 {
 	//read setting
 	gl_select_lang =  Read_SET_info(assress_language);
-	if( (gl_select_lang != 0xE1E1) && (gl_select_lang != 0xE2E2))
+	if( (gl_select_lang != 0xE1E1) && (gl_select_lang != 0xE2E2) && (gl_select_lang != 0xE3E3))
 	{
 		gl_select_lang = 0xE1E1;
 	}
@@ -1106,7 +1096,11 @@ void CheckLanguage(void)
 	{
 		LoadEnglish();
 	}
-	else//ÖÐÎÄ
+	else if(gl_select_lang == 0xE3E3)//korean
+	{
+		LoadKorean();
+	}
+	else//ä¸­æ–‡
 	{
 		LoadChinese();
 	}
@@ -1374,7 +1368,7 @@ u32 IWRAM_CODE LoadEMU2NOR(TCHAR *filename, u32 NORaddress,u32 is_EMU)
 		readsize = 0x20000 - rom_start_address;
 		f_read(&gfile, pReadCache+rom_start_address, readsize, &ret);//pReadCache max 0x20000 Byte
 		
-		Block_Erase(NORaddress);//²âÊÔ0
+		Block_Erase(NORaddress);//æµ‹è¯•0
 		WriteFlash_with64word(NORaddress,pReadCache,0x20000);
 
 		blocknum = 0x20000;
@@ -1501,7 +1495,7 @@ void SD_list_L_START(u32 show_offset,u32 file_select,u32 folder_total)
 
 	DrawHZText12(gl_LSTART_help,0,60,60,gl_color_text,1);//use sure?gl_LSTART_help
 	DrawHZText12(pFilename_buffer[show_offset+file_select-folder_total].filename,20,60,75,0x7fff,1);//file name
-	DrawHZText12(gl_formatnor_info,5,60,90,gl_color_text,1);//use sure?
+	DrawHZText12(gl_formatnor_info,0,60,90,gl_color_text,1);//use sure? (len=0: full string; len=5 truncated UTF-8 zh/ko to 1 glyph)
 	while(1){
 		VBlankIntrWait();
 		scanKeys();
@@ -1933,9 +1927,6 @@ re_showfile:
 			if((shift==0) || (gl_show_Thumbnail==0)){
 				short_filename = 0;				
 			}
-			if(shift==0){
-				dwName =0;
-			}			
 			shift++;
 			
 			haveThumbnail = 0;
