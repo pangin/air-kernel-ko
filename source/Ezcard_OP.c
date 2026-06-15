@@ -383,7 +383,10 @@ u16 IWRAM_CODE Read_FPGA_ver(void)
 	SPI_Enable();	
 	Read_SPI =  *(vu16 *)0x9E00000; 
 	SPI_Disable();
-	SetRompage_MODE(0x0040,SYSTEM_MODE_GAME);//select flash0
+	// Restore OS mode before returning. The original left the cart in GAME mode
+	// (0x0040), so returning into this ROM-resident caller fetched from the wrong
+	// bank and froze the help window (Read_FPGA_ver is only called from there).
+	SetRompage_MODE(0x0000,SYSTEM_MODE_OS);//select flash0 (kernel)
 	return Read_SPI;
 }
 // --------------------------------------------------------------------
