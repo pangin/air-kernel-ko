@@ -521,19 +521,26 @@ void IWRAM_CODE FW_update(u16 DEcard_FW_readver,u16 FW_built_in_ver,void* FWbina
 // --------------------------------------------------------------------
 void IWRAM_CODE Check_FW_update(/*u16 Current_FW_ver,u16 Built_in_ver*/)
 {
-	u16 DEair_FW_readver = 2;//Read_FPGA_ver();
+	u16 DEair_FW_readver = Read_FPGA_ver();
 	u16 DEair_FW_ver = DEair_FW_readver & 0x00FF;
 
 	//check FW
 	scanKeys();
-	u16 keys = keysDown();	
-	//
-	//if((DEair_FW_readver & 0xF000) == 0xC000){
-		//if((DEair_FW_ver < LX16_FW_built_in_ver)   /*|| (keys & KEY_L) */ ){
+	u16 keys = keysDown();
+	(void) keys;   // KEY_L could force a re-flash; left disabled as upstream had it
+
+	// Only prompt for an FPGA firmware update when a valid FPGA is present
+	// (version high nibble 0xC) AND its firmware is older than the kernel's
+	// built-in bitstream. The upstream source shipped with these gates commented
+	// out and the version read stubbed to 2, so it ran FW_update on every boot
+	// (a forced/dev state). Read_FPGA_ver is safe to call now that it restores
+	// OS mode before returning.
+	if((DEair_FW_readver & 0xF000) == 0xC000){
+		if((DEair_FW_ver < LX16_FW_built_in_ver) /*|| (keys & KEY_L)*/ ){
 			/* FPGA bitstream is read from the kernel image region at 0x08195000 (byte-identical copy of deair_FW3.bin, CRC32-gated by LX16_FW_crc32). */
 			FW_update(DEair_FW_readver,LX16_FW_built_in_ver,LX16_newomega_top_bin_address,LX16_newomega_top_bin_size,LX16_FW_crc32,LX16_wirte_address);
-		//}
-	//}		
+		}
+	}
 }
 // --------------------------------------------------------------------
 static const u32 crc32tab[] = {
