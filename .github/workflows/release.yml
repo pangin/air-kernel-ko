@@ -112,9 +112,10 @@ jobs:
           [ "$BIN_SIZE" -eq 2123424 ] || { echo "FAIL: ezairkernel.bin != 2123424 bytes"; exit 1; }
 
       - name: Prepare release assets
+        # Publish the update file under its ORIGINAL name (ezairkernel.bin) so it
+        # can be dropped onto the SD card and flashed without renaming.
         run: |
-          mv ezairkernel.bin "ezairkernel-${GITHUB_REF_NAME}.bin"
-          sha256sum *.gba "ezairkernel-${GITHUB_REF_NAME}.bin" > SHA256SUMS.txt
+          sha256sum ezairkernel.bin > SHA256SUMS.txt
           cat SHA256SUMS.txt
 
       - uses: softprops/action-gh-release@v2
@@ -124,12 +125,11 @@ jobs:
           body: |
             EZ-FLASH Air 한글 커널 릴리스 `${{ github.ref_name }}`
 
-            **설치**: `ezairkernel-${{ github.ref_name }}.bin`을 `ezairkernel.bin`으로
-            이름을 바꿔 SD 카드 루트에 복사한 뒤 EZ-FLASH Air의 커널 업데이트
-            절차를 따르세요.
+            **설치**: `ezairkernel.bin`을 SD 카드 루트에 복사한 뒤 EZ-FLASH Air의
+            커널 업데이트 절차를 따르세요. 원본 커널과 **파일명이 같으므로**
+            그대로 붙여넣고 업데이트하면 됩니다.
 
             버전 체계는 [VERSIONING.md](https://github.com/${{ github.repository }}/blob/korean/VERSIONING.md)를 참고하세요.
           files: |
-            ezairkernel-${{ github.ref_name }}.bin
-            *.gba
+            ezairkernel.bin
             SHA256SUMS.txt
