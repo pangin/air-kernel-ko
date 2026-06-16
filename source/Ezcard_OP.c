@@ -12,7 +12,6 @@
 #include "ezkernel.h"
 #include "draw.h"
 #include "Ezcard_OP.h"
-#include "deair_FW3.h"
 
 extern u32 FAT_table_buffer[FAT_table_size/4]EWRAM_BSS;
 
@@ -384,7 +383,10 @@ u16 IWRAM_CODE Read_FPGA_ver(void)
 	SPI_Enable();	
 	Read_SPI =  *(vu16 *)0x9E00000; 
 	SPI_Disable();
-	SetRompage_MODE(0x0040,SYSTEM_MODE_GAME);//select flash0
+	// Restore OS mode before returning. The original left the cart in GAME mode
+	// (0x0040), so returning into this ROM-resident caller fetched from the wrong
+	// bank and froze the help window (Read_FPGA_ver is only called from there).
+	SetRompage_MODE(0x0000,SYSTEM_MODE_OS);//select flash0 (kernel)
 	return Read_SPI;
 }
 // --------------------------------------------------------------------
@@ -519,18 +521,26 @@ void IWRAM_CODE FW_update(u16 DEcard_FW_readver,u16 FW_built_in_ver,void* FWbina
 // --------------------------------------------------------------------
 void IWRAM_CODE Check_FW_update(/*u16 Current_FW_ver,u16 Built_in_ver*/)
 {
-	u16 DEair_FW_readver = 2;//Read_FPGA_ver();
+	u16 DEair_FW_readver = Read_FPGA_ver();
 	u16 DEair_FW_ver = DEair_FW_readver & 0x00FF;
 
 	//check FW
 	scanKeys();
-	u16 keys = keysDown();	
-	//
-	//if((DEair_FW_readver & 0xF000) == 0xC000){
-		//if((DEair_FW_ver < LX16_FW_built_in_ver)   /*|| (keys & KEY_L) */ ){
-			FW_update(DEair_FW_readver,LX16_FW_built_in_ver,deair_FW3_bin,deair_FW3_bin_size,LX16_FW_crc32,LX16_wirte_address);
-		//}
-	//}		
+	u16 keys = keysDown();
+	(void) keys;   // KEY_L could force a re-flash; left disabled as upstream had it
+
+	// Only prompt for an FPGA firmware update when a valid FPGA is present
+	// (version high nibble 0xC) AND its firmware is older than the kernel's
+	// built-in bitstream. The upstream source shipped with these gates commented
+	// out and the version read stubbed to 2, so it ran FW_update on every boot
+	// (a forced/dev state). Read_FPGA_ver is safe to call now that it restores
+	// OS mode before returning.
+	if((DEair_FW_readver & 0xF000) == 0xC000){
+		if((DEair_FW_ver < LX16_FW_built_in_ver) /*|| (keys & KEY_L)*/ ){
+			/* FPGA bitstream is read from the kernel image region at 0x08195000 (byte-identical copy of deair_FW3.bin, CRC32-gated by LX16_FW_crc32). */
+			FW_update(DEair_FW_readver,LX16_FW_built_in_ver,LX16_newomega_top_bin_address,LX16_newomega_top_bin_size,LX16_FW_crc32,LX16_wirte_address);
+		}
+	}
 }
 // --------------------------------------------------------------------
 static const u32 crc32tab[] = {

@@ -1,3 +1,6 @@
+/* lang.c â€” UTF-8 encoded. EN/ZH/KO string tables.
+ * NOTE: this file was converted from GB2312 to UTF-8; the renderer
+ * (DrawHZText12) decodes UTF-8 and maps Hangul/CJK to the new fonts. */
 #include "lang.h"
 
 char* gl_init_error;
@@ -29,6 +32,7 @@ char* gl_cheat;
 char* gl_language;
 char* gl_en_lang;
 char* gl_zh_lang;
+char* gl_ko_lang;
 char* gl_set_btn;
 char* gl_ok_btn;
 
@@ -83,102 +87,108 @@ char**  gl_rom_menu;
 char**  gl_nor_op;
 
 
+//---------------------------------------------------------------------------------
+// Language picker labels: identical in every language so the SETTING window
+// always shows all three options regardless of the active language.
+const char en_lang[]="ENG";
+const char zh_lang[]="ä¸­æ–‡";
+const char ko_lang[]="í•œêµ­ì–´";
 
 
-//ÖĞÎÄ
-const char zh_init_error[]="TF¿¨³õÊ¼»¯Ê§°Ü";
-const char zh_power_off[]="¹Ø»ú";
-const char zh_init_ok[]="TF¿¨³õÊ¼»¯³É¹¦";
-const char zh_Loading[]="¼ÓÔØÖĞ...";
-const char zh_file_overflow[]="ÎÄ¼şÌ«´ó,Çë¼ÓÔØµ½NOR";
+//ä¸­æ–‡
+const char zh_init_error[]="TFå¡åˆå§‹åŒ–å¤±è´¥";
+const char zh_power_off[]="å…³æœº";
+const char zh_init_ok[]="TFå¡åˆå§‹åŒ–æˆåŠŸ";
+const char zh_Loading[]="åŠ è½½ä¸­...";
+const char zh_file_overflow[]="æ–‡ä»¶å¤ªå¤§,è¯·åŠ è½½åˆ°NOR";
 
-const char zh_menu_btn[]=" [B]È¡Ïû    [A]È·¶¨";
-const char zh_writing[]="ÕıÔÚĞ´...";
-const char zh_lastest_game[]="ÇëÑ¡Ôñ×îºóÒ»¸öÓÎÏ·";
+const char zh_menu_btn[]=" [B]å–æ¶ˆ    [A]ç¡®å®š";
+const char zh_writing[]="æ­£åœ¨å†™...";
+const char zh_lastest_game[]="è¯·é€‰æ‹©æœ€åä¸€ä¸ªæ¸¸æˆ";
 
-const char zh_time[] ="     Ê±¼ä";
-const char zh_Mon[]="Ò»";
-const char zh_Tues[]="¶ş";
-const char zh_Wed[]="Èı";
-const char zh_Thur[]="ËÄ";
-const char zh_Fri[]="Îå";
-const char zh_Sat[]="Áù";
-const char zh_Sun[]="ÈÕ";
+const char zh_time[] ="     æ—¶é—´";
+const char zh_Mon[]="ä¸€";
+const char zh_Tues[]="äºŒ";
+const char zh_Wed[]="ä¸‰";
+const char zh_Thur[]="å››";
+const char zh_Fri[]="äº”";
+const char zh_Sat[]="å…­";
+const char zh_Sun[]="æ—¥";
 
-const char zh_addon[]="     ¹¦ÄÜ";
-const char zh_reset[]="Èí¸´Î»";
+const char zh_addon[]="     åŠŸèƒ½";
+const char zh_reset[]="è½¯å¤ä½";
 
-const char zh_cheat[]="½ğÊÖÖ¸";
+const char zh_cheat[]="é‡‘æ‰‹æŒ‡";
 
-const char zh_hot_key[]=" Ë¯ÃßÈÈ¼ü";
-const char zh_hot_key2[]=" ²Ëµ¥ÈÈ¼ü";
+const char zh_hot_key[]=" ç¡çœ çƒ­é”®";
+const char zh_hot_key2[]=" èœå•çƒ­é”®";
 
 const char zh_language[]=" LANGUAGE";
-const char zh_lang[]="ÖĞÎÄ";
 
-const char zh_set_btn[]="ÉèÖÃ";
-const char zh_ok_btn[]="±£´æ";
-const char zh_formatnor_info[]="È·¶¨?´óÔ¼4·ÖÖÓ";
+const char zh_set_btn[]="è®¾ç½®";
+const char zh_ok_btn[]="ä¿å­˜";
+const char zh_formatnor_info[]="ç¡®å®š?å¤§çº¦4åˆ†é’Ÿ";
 
-const char zh_check_sav[]="¼ì²éSAVÎÄ¼ş";
-const char zh_make_sav[]="´´½¨SAVÎÄ¼ş";
-
-
-const char zh_loading_game[]="¼ÓÔØÓÎÏ·";
+const char zh_check_sav[]="æ£€æŸ¥SAVæ–‡ä»¶";
+const char zh_make_sav[]="åˆ›å»ºSAVæ–‡ä»¶";
 
 
-const char zh_LRSTART_help[]="Èí¸´Î»ÈÈ¼ü";
-const char zh_LRSELECT_help[]="½ğÊÖÖ¸¿ª¹Ø";
-const char zh_SELECT_help[]="ËõÂÔÍ¼¿ª¹Ø";
-const char zh_L_A_help[]="ÀäÆô¶¯";
-const char zh_LSTART_help[]="É¾³ıÎÄ¼ş";
-const char zh_online_manual[]="  ÔÚÏßËµÃ÷Êé";
+const char zh_loading_game[]="åŠ è½½æ¸¸æˆ";
+
+
+const char zh_LRSTART_help[]="è½¯å¤ä½çƒ­é”®";
+const char zh_LRSELECT_help[]="é‡‘æ‰‹æŒ‡å¼€å…³";
+const char zh_SELECT_help[]="ç¼©ç•¥å›¾å¼€å…³";
+const char zh_L_A_help[]="å†·å¯åŠ¨";
+const char zh_LSTART_help[]="åˆ é™¤æ–‡ä»¶";
+const char zh_online_manual[]="  åœ¨çº¿è¯´æ˜ä¹¦";
 
 
 
-const char zh_error_0[]="ÎÄ¼ş¼Ğ´íÎó";
-const char zh_error_1[]="ÎÄ¼ş´íÎó";
-const char zh_error_2[]="SAVER´íÎó";
-const char zh_error_3[]="´æµµ´íÎó";
-const char zh_error_4[]="¶ÁÈ¡´æµµ´íÎó";
-const char zh_error_5[]="´´½¨´æµµ´íÎó";
+const char zh_error_0[]="æ–‡ä»¶å¤¹é”™è¯¯";
+const char zh_error_1[]="æ–‡ä»¶é”™è¯¯";
+const char zh_error_2[]="SAVERé”™è¯¯";
+const char zh_error_3[]="å­˜æ¡£é”™è¯¯";
+const char zh_error_4[]="è¯»å–å­˜æ¡£é”™è¯¯";
+const char zh_error_5[]="åˆ›å»ºå­˜æ¡£é”™è¯¯";
+const char zh_error_6[]="æœªçŸ¥é”™è¯¯";	/* upstream left gl_error_6 unassigned (NULL %s if ever reached) â€” hardened here */
 
 
-const char zh_save_sav[]="±£´æ´æµµ?";
-const char zh_save_ing[]="±£´æ...";
-const char zh_save[]="     ´æµµ";
-const char zh_auto_save[]="¿ª»ú×Ô¶¯±¸·İ´æµµ";
+const char zh_save_sav[]="ä¿å­˜å­˜æ¡£?";
+const char zh_save_ing[]="ä¿å­˜...";
+const char zh_save[]="     å­˜æ¡£";
+const char zh_auto_save[]="è‡ªåŠ¨å¤‡ä»½";
 
-const char zh_modeB_INITstr[]="Ä£Ê½B×´Ì¬";
-const char zh_modeB_RUMBLE[]="Õğ¶¯";
-const char zh_modeB_LINK[]="Áª¶¯";
+const char zh_modeB_INITstr[]="æ¨¡å¼BçŠ¶æ€";
+const char zh_modeB_RUMBLE[]="éœ‡åŠ¨";
+const char zh_modeB_LINK[]="è”åŠ¨";
 
 
-const char zh_NOR_full[]="NOR¿Õ¼ä²»×ã";
-const char zh_save_loaded[]="´æµµÒÑ¼ÓÔØµ½RAM";
-const char zh_save_saved[]="´æµµÒÑ±£´æµ½SD";
-const char zh_file_exist[]="ÎÄ¼ş´æÔÚ,¸²¸ÇÂğ?";
-const char zh_file_noexist[]="ÕÒ²»µ½´æµµÎÄ¼ş";
+const char zh_NOR_full[]="NORç©ºé—´ä¸è¶³";
+const char zh_save_loaded[]="å­˜æ¡£å·²åŠ è½½åˆ°RAM";
+const char zh_save_saved[]="å­˜æ¡£å·²ä¿å­˜åˆ°SD";
+const char zh_file_exist[]="æ–‡ä»¶å­˜åœ¨,è¦†ç›–å—?";
+const char zh_file_noexist[]="æ‰¾ä¸åˆ°å­˜æ¡£æ–‡ä»¶";
 
-const char zh_free[]="¿ÕÏĞ:";
+const char zh_free[]="ç©ºé—²:";
 
 const char *zh_rom_menu[]={
-	"ÉÕÂ¼µ½NOR",
-	"ÉÕÂ¼µ½NOR´ø¸¨Öú",
-	"´æµµÀàĞÍ",
-	"½ğÊÖÖ¸",
+	"çƒ§å½•åˆ°NOR",
+	"çƒ§å½•åˆ°NORå¸¦è¾…åŠ©",
+	"å­˜æ¡£ç±»å‹",
+	"é‡‘æ‰‹æŒ‡",
 };
 const char *zh_nor_op[5]={
-	"Ö±½ÓÔËĞĞ",
-	"É¾³ı",
-	"È«²¿¸ñÊ½»¯",
-	"¼ÓÔØ´æµµµ½RAM",
-	"±£´æRAM´æµµ",
+	"ç›´æ¥è¿è¡Œ",
+	"åˆ é™¤",
+	"å…¨éƒ¨æ ¼å¼åŒ–",
+	"åŠ è½½å­˜æ¡£åˆ°RAM",
+	"ä¿å­˜RAMå­˜æ¡£",
 };
 
 
 
-//Ó¢ÎÄ
+//è‹±æ–‡
 const char en_init_error[]="Micro SD card initial error";
 const char en_power_off[]="Power off";
 const char en_init_ok[]="Micro SD card initial OK";
@@ -205,7 +215,6 @@ const char en_cheat[]="CHEAT";
 
 
 const char en_language[]=" LANGUAGE";
-const char en_lang[]="ENGLISH";
 const char en_set_btn[]="SET";
 const char en_ok_btn[]=" OK";
 
@@ -219,7 +228,7 @@ const char en_loading_game[]="LOADING GAME";
 
 const char en_LRSTART_help[]="Reset hotkey";
 const char en_LRSELECT_help[]="Cheat toggle";
-	
+
 const char en_SELECT_help[]="Thumbnail toggle";
 const char en_L_A_help[]="Multiboot";
 const char en_LSTART_help[]="Delete file";
@@ -232,6 +241,7 @@ const char en_error_2[]="SAVER error";
 const char en_error_3[]="Save error";
 const char en_error_4[]="Read save error";
 const char en_error_5[]="Make save error";
+const char en_error_6[]="Unknown error";
 
 
 
@@ -250,7 +260,7 @@ const char en_modeB_LINK[]="LINK";
 const char en_NOR_full[]="NOR space not enough  ";
 const char en_save_loaded[]="Sav have been loaded";
 const char en_save_saved[]="Sav have been saved";
-const char en_file_exist[]="File exist£¬cover it?";
+const char en_file_exist[]="File existï¼Œcover it?";
 const char en_file_noexist[]="Cnt not find sav file";
 
 const char en_free[]="FREE:";
@@ -267,7 +277,99 @@ const char *en_nor_op[5]={
 	"FORMAT ALL",
 	"LOAD SAV FILE",
 	"SAVE SAV FILE",
-};	
+};
+
+
+
+//í•œêµ­ì–´
+const char ko_init_error[]="SDì¹´ë“œ ì´ˆê¸°í™” ì‹¤íŒ¨";
+const char ko_power_off[]="ì „ì› ë„ê¸°";
+const char ko_init_ok[]="SDì¹´ë“œ ì´ˆê¸°í™” ì„±ê³µ";
+const char ko_Loading[]="ë¡œë”© ì¤‘...";
+const char ko_file_overflow[]="íŒŒì¼ì´ ë„ˆë¬´ í¼, NORì— ê¸°ë¡";
+
+const char ko_menu_btn[]=" [B]ì·¨ì†Œ    [A]í™•ì¸";
+const char ko_writing[]="ì“°ëŠ” ì¤‘...";
+const char ko_lastest_game[]="ë§ˆì§€ë§‰ ê²Œì„ ì„ íƒ";
+
+const char ko_time[]="     ì‹œê°„";
+const char ko_Mon[]="ì›”";
+const char ko_Tues[]="í™”";
+const char ko_Wed[]="ìˆ˜";
+const char ko_Thur[]="ëª©";
+const char ko_Fri[]="ê¸ˆ";
+const char ko_Sat[]="í† ";
+const char ko_Sun[]="ì¼";
+
+const char ko_addon[]="     ê¸°ëŠ¥";
+const char ko_reset[]="ë¦¬ì…‹";
+
+const char ko_cheat[]="ì¹˜íŠ¸";
+
+
+const char ko_language[]="     ì–¸ì–´";
+
+const char ko_set_btn[]="ì„¤ì •";
+const char ko_ok_btn[]="ì €ì¥";
+const char ko_formatnor_info[]="ì‹¤í–‰? ì•½ 4ë¶„ ì†Œìš”";
+
+const char ko_check_sav[]="SAVíŒŒì¼ í™•ì¸ ì¤‘";	/* <=20 bytes: ShowbootProgress centers by byte count vs its 120px clear box */
+const char ko_make_sav[]="SAVíŒŒì¼ ìƒì„± ì¤‘";
+
+
+const char ko_loading_game[]="ê²Œì„ ë¡œë”© ì¤‘";
+
+const char ko_LRSTART_help[]="ë¦¬ì…‹ ë‹¨ì¶•í‚¤";
+const char ko_LRSELECT_help[]="ì¹˜íŠ¸ ì¼œê¸°/ë„ê¸°";
+const char ko_SELECT_help[]="ì¸ë„¤ì¼ ì¼œê¸°/ë„ê¸°";
+const char ko_L_A_help[]="ë©€í‹°ë¶€íŠ¸";
+const char ko_LSTART_help[]="íŒŒì¼ ì‚­ì œ";
+const char ko_online_manual[]="ì˜¨ë¼ì¸ì„¤ëª…ì„œ";	/* drawn at x=163: only 77px left -> 6 Hangul = 72px, no space */
+
+
+const char ko_error_0[]="í´ë” ì˜¤ë¥˜";
+const char ko_error_1[]="íŒŒì¼ ì˜¤ë¥˜";
+const char ko_error_2[]="SAVER ì˜¤ë¥˜";
+const char ko_error_3[]="ì„¸ì´ë¸Œ ì˜¤ë¥˜";
+const char ko_error_4[]="ì €ì¥ ì½ê¸° ì˜¤ë¥˜";	/* <=90px: Show_error_num draws at x=90, header content starts ~x=180 */
+const char ko_error_5[]="ì €ì¥ ìƒì„± ì˜¤ë¥˜";
+const char ko_error_6[]="ì•Œ ìˆ˜ ì—†ëŠ” ì˜¤ë¥˜";
+
+
+
+const char ko_save_sav[]="ì„¸ì´ë¸Œ ì €ì¥?";
+const char ko_save_ing[]="ì €ì¥ ì¤‘...";
+const char ko_save[]="   ì„¸ì´ë¸Œ";
+const char ko_auto_save[]="ìë™ ë°±ì—…";
+
+const char ko_modeB_INITstr[]="   ëª¨ë“œ B";
+const char ko_modeB_RUMBLE[]="ì§„ë™";
+
+const char ko_modeB_LINK[]="ë§í¬";
+
+
+
+const char ko_NOR_full[]="NOR ê³µê°„ ë¶€ì¡±";
+const char ko_save_loaded[]="ì„¸ì´ë¸Œ ë¡œë“œ ì™„ë£Œ";
+const char ko_save_saved[]="ì„¸ì´ë¸Œ ì €ì¥ ì™„ë£Œ";
+const char ko_file_exist[]="íŒŒì¼ ì¡´ì¬, ë®ì–´ì“¸ê¹Œìš”?";
+const char ko_file_noexist[]="ì„¸ì´ë¸Œ íŒŒì¼ ì—†ìŒ";
+
+const char ko_free[]="ì—¬ìœ :";
+
+const char *ko_rom_menu[] = {
+	"NORì— êµ½ê¸° (í´ë¦°)",
+	"NORì— êµ½ê¸° (ì• ë“œì˜¨)",
+	"ì €ì¥ íƒ€ì…",
+	"ì¹˜íŠ¸",
+};
+const char *ko_nor_op[5]={
+	"ë°”ë¡œ ì‹¤í–‰",
+	"ì‚­ì œ",
+	"ì „ì²´ í¬ë§·",
+	"ì„¸ì´ë¸Œ ë¶ˆëŸ¬ì˜¤ê¸°",
+	"ì„¸ì´ë¸Œ ì €ì¥í•˜ê¸°",
+};
 
 //---------------------------------------------------------------------------------
 void LoadChinese(void)
@@ -281,9 +383,8 @@ void LoadChinese(void)
 	gl_menu_btn = (char*)zh_menu_btn;
 	gl_writing = (char*)zh_writing;
 	gl_lastest_game = (char*)zh_lastest_game;
-	
-	
-	gl_time = (char*)zh_time;	
+
+	gl_time = (char*)zh_time;
 	gl_Mon = (char*)zh_Mon;
 	gl_Tues = (char*)zh_Tues;
 	gl_Wed = (char*)zh_Wed;
@@ -295,40 +396,40 @@ void LoadChinese(void)
 	gl_addon = (char*)zh_addon;
 	gl_reset = (char*)zh_reset;
 
-	gl_cheat = (char*)zh_cheat;	
-	
+	gl_cheat = (char*)zh_cheat;
+
 
 	gl_language =  (char*)zh_language;
 	gl_en_lang = (char*)en_lang;
-	gl_zh_lang = (char*)zh_lang;;
+	gl_zh_lang = (char*)zh_lang;
+	gl_ko_lang = (char*)ko_lang;
 	gl_set_btn = (char*)zh_set_btn;
 	gl_ok_btn = (char*)zh_ok_btn;
 	gl_formatnor_info = (char*)zh_formatnor_info;
 
 	gl_check_sav = (char*)zh_check_sav;
 	gl_make_sav = (char*)zh_make_sav;
-		
-	
+
+
 	gl_loading_game = (char*)zh_loading_game;
 
 
-	//gl_START_help = (char*)zh_START_help;
 	gl_LRSTART_help = (char*)zh_LRSTART_help;
 	gl_LRSELECT_help = (char*)zh_LRSELECT_help;
-	gl_SELECT_help = (char*)zh_SELECT_help;	
+	gl_SELECT_help = (char*)zh_SELECT_help;
 	gl_L_A_help = (char*)zh_L_A_help;
 	gl_LSTART_help = (char*)zh_LSTART_help;
 	gl_online_manual = (char*)zh_online_manual;
-	
-	
+
+
 	gl_error_0 = (char*)zh_error_0;
 	gl_error_1 = (char*)zh_error_1;
 	gl_error_2 = (char*)zh_error_2;
 	gl_error_3 = (char*)zh_error_3;
 	gl_error_4 = (char*)zh_error_4;
 	gl_error_5 = (char*)zh_error_5;
-	//gl_error_6 = (char*)zh_error_6;
-	
+	gl_error_6 = (char*)zh_error_6;
+
 	gl_save_sav = (char*)zh_save_sav;
 	gl_save_ing = (char*)zh_save_ing;
 	gl_save = (char*)zh_save;
@@ -340,18 +441,16 @@ void LoadChinese(void)
 	gl_modeB_LINK= (char*)zh_modeB_LINK;
 
 
-	
 	gl_NOR_full = (char*)zh_NOR_full;
 	gl_save_loaded = (char*)zh_save_loaded;
 	gl_save_saved = (char*)zh_save_saved;
 	gl_file_exist = (char*)zh_file_exist;
 	gl_file_noexist = (char*)zh_file_noexist;
-	
-	gl_free = (char*)zh_free;	
+
+	gl_free = (char*)zh_free;
 	//
 	gl_rom_menu = (char**)zh_rom_menu;
 	gl_nor_op = (char**)zh_nor_op;
-
 }
 //---------------------------------------------------------------------------------
 void LoadEnglish(void)
@@ -365,8 +464,8 @@ void LoadEnglish(void)
 	gl_menu_btn = (char*)en_menu_btn;
 	gl_writing = (char*)en_writing;
 	gl_lastest_game = (char*)en_lastest_game;
-	
-	gl_time = (char*)en_time;	
+
+	gl_time = (char*)en_time;
 	gl_Mon = (char*)en_Mon;
 	gl_Tues = (char*)en_Tues;
 	gl_Wed = (char*)en_Wed;
@@ -374,42 +473,44 @@ void LoadEnglish(void)
 	gl_Fri = (char*)en_Fri;
 	gl_Sat = (char*)en_Sat;
 	gl_Sun = (char*)en_Sun;
+
 	gl_addon = (char*)en_addon;
 	gl_reset = (char*)en_reset;
 
-	gl_cheat = (char*)en_cheat;	
-	
-	
+	gl_cheat = (char*)en_cheat;
+
+
 	gl_language =  (char*)en_language;
 	gl_en_lang = (char*)en_lang;
-	gl_zh_lang = (char*)zh_lang;;
+	gl_zh_lang = (char*)zh_lang;
+	gl_ko_lang = (char*)ko_lang;
 	gl_set_btn = (char*)en_set_btn;
 	gl_ok_btn = (char*)en_ok_btn;
 	gl_formatnor_info = (char*)en_formatnor_info;
 
 	gl_check_sav = (char*)en_check_sav;
 	gl_make_sav = (char*)en_make_sav;
-		
-	
+
+
 	gl_loading_game = (char*)en_loading_game;
-	
-	
+
+
 	gl_LRSTART_help = (char*)en_LRSTART_help;
 	gl_LRSELECT_help = (char*)en_LRSELECT_help;
 	gl_SELECT_help = (char*)en_SELECT_help;
 	gl_L_A_help = (char*)en_L_A_help;
 	gl_LSTART_help = (char*)en_LSTART_help;
 	gl_online_manual = (char*)en_online_manual;
-	
 
-	
+
 	gl_error_0 = (char*)en_error_0;
 	gl_error_1 = (char*)en_error_1;
 	gl_error_2 = (char*)en_error_2;
 	gl_error_3 = (char*)en_error_3;
 	gl_error_4 = (char*)en_error_4;
 	gl_error_5 = (char*)en_error_5;
-	
+	gl_error_6 = (char*)en_error_6;
+
 	gl_save_sav = (char*)en_save_sav;
 	gl_save_ing = (char*)en_save_ing;
 	gl_save = (char*)en_save;
@@ -417,17 +518,99 @@ void LoadEnglish(void)
 
 	gl_modeB_INITstr = (char*)en_modeB_INITstr;
 	gl_modeB_RUMBLE = (char*)en_modeB_RUMBLE;
+
 	gl_modeB_LINK= (char*)en_modeB_LINK;
-	
-	
+
+
 	gl_NOR_full = (char*)en_NOR_full;
 	gl_save_loaded = (char*)en_save_loaded;
 	gl_save_saved = (char*)en_save_saved;
 	gl_file_exist = (char*)en_file_exist;
 	gl_file_noexist = (char*)en_file_noexist;
-	
-	gl_free = (char*)en_free;	
+
+	gl_free = (char*)en_free;
 	//
 	gl_rom_menu = (char**)en_rom_menu;
 	gl_nor_op = (char**)en_nor_op;
+}
+//---------------------------------------------------------------------------------
+void LoadKorean(void)
+{
+	gl_init_error = (char*)ko_init_error;
+	gl_power_off = (char*)ko_power_off;
+	gl_init_ok = (char*)ko_init_ok;
+	gl_Loading = (char*)ko_Loading;
+	gl_file_overflow = (char*)ko_file_overflow;
+
+	gl_menu_btn = (char*)ko_menu_btn;
+	gl_writing = (char*)ko_writing;
+	gl_lastest_game = (char*)ko_lastest_game;
+
+	gl_time = (char*)ko_time;
+	gl_Mon = (char*)ko_Mon;
+	gl_Tues = (char*)ko_Tues;
+	gl_Wed = (char*)ko_Wed;
+	gl_Thur = (char*)ko_Thur;
+	gl_Fri = (char*)ko_Fri;
+	gl_Sat = (char*)ko_Sat;
+	gl_Sun = (char*)ko_Sun;
+
+	gl_addon = (char*)ko_addon;
+	gl_reset = (char*)ko_reset;
+
+	gl_cheat = (char*)ko_cheat;
+
+
+	gl_language =  (char*)ko_language;
+	gl_en_lang = (char*)en_lang;
+	gl_zh_lang = (char*)zh_lang;
+	gl_ko_lang = (char*)ko_lang;
+	gl_set_btn = (char*)ko_set_btn;
+	gl_ok_btn = (char*)ko_ok_btn;
+	gl_formatnor_info = (char*)ko_formatnor_info;
+
+	gl_check_sav = (char*)ko_check_sav;
+	gl_make_sav = (char*)ko_make_sav;
+
+
+	gl_loading_game = (char*)ko_loading_game;
+
+
+	gl_LRSTART_help = (char*)ko_LRSTART_help;
+	gl_LRSELECT_help = (char*)ko_LRSELECT_help;
+	gl_SELECT_help = (char*)ko_SELECT_help;
+	gl_L_A_help = (char*)ko_L_A_help;
+	gl_LSTART_help = (char*)ko_LSTART_help;
+	gl_online_manual = (char*)ko_online_manual;
+
+
+	gl_error_0 = (char*)ko_error_0;
+	gl_error_1 = (char*)ko_error_1;
+	gl_error_2 = (char*)ko_error_2;
+	gl_error_3 = (char*)ko_error_3;
+	gl_error_4 = (char*)ko_error_4;
+	gl_error_5 = (char*)ko_error_5;
+	gl_error_6 = (char*)ko_error_6;
+
+	gl_save_sav = (char*)ko_save_sav;
+	gl_save_ing = (char*)ko_save_ing;
+	gl_save = (char*)ko_save;
+	gl_auto_save = (char*)ko_auto_save;
+
+	gl_modeB_INITstr = (char*)ko_modeB_INITstr;
+	gl_modeB_RUMBLE = (char*)ko_modeB_RUMBLE;
+
+	gl_modeB_LINK= (char*)ko_modeB_LINK;
+
+
+	gl_NOR_full = (char*)ko_NOR_full;
+	gl_save_loaded = (char*)ko_save_loaded;
+	gl_save_saved = (char*)ko_save_saved;
+	gl_file_exist = (char*)ko_file_exist;
+	gl_file_noexist = (char*)ko_file_noexist;
+
+	gl_free = (char*)ko_free;
+	//
+	gl_rom_menu = (char**)ko_rom_menu;
+	gl_nor_op = (char**)ko_nor_op;
 }

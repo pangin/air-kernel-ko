@@ -1,0 +1,40 @@
+EZ-FLASH Air Kernel KO
+======================
+
+This product is a Korean localization of the EZ-FLASH Air kernel.
+
+1. Upstream
+-----------
+EZ-FLASH Air kernel
+Copyright (c) EZ-FLASH Team
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+2. Modifications by the EZ-FLASH Air Kernel KO project
+------------------------------------------------------
+Licensed under the Apache License, Version 2.0. Modified areas include:
+  - UTF-8 text renderer and font-block lookup (source/draw.c)
+  - Korean string table and three-language plumbing
+    (source/lang.c, source/lang.h, source/ezkernelnew.c, source/setwindow.c)
+  - Hangul SD filename support: FatFs CP949 codepage + UTF-8 LFN
+    (source/ff16)
+  - Generated font headers (source/font_kor.h, source/font_cjk.h)
+  - Kernel slimming: FPGA bitstream deduplicated against image.bin at
+    0x08195000, gated by a CRC32 check
+  - Build tooling (build.sh, tools/link_kernel.py)
+
+3. Third-party components
+-------------------------
+Galmuri font
+  Copyright (c) Lee Minseo
+  Licensed under the SIL Open Font License, Version 1.1.
+  The embedded Hangul glyph data in source/font_kor.h is a derivative
+  of Galmuri.
+
+FatFs - Generic FAT Filesystem Module
+  Copyright (c) ChaN
+  Distributed under its own BSD-style license (see source/ff16).
+
+PocketNES and Goomba Color
+  Embedded emulator binaries (source/pocketnes.h,
+  source/jagoombacolor.h) by their respective authors, included as in
+  the upstream EZ-FLASH Air kernel.

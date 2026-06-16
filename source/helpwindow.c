@@ -10,6 +10,8 @@
 #include "RTC.h"
 #include "draw.h"
 #include "Ezcard_OP.h"
+#include <string.h>
+#include "version.h"
 
 
 
@@ -18,11 +20,11 @@ u16 Rev;
 //---------------------------------------------------------------------------------
 void Show_ver(void)
 {
-	char msg[20];
-	char *ver="K:1.04";
+	char msg[24];
+	char *ver="K:" KERNEL_KO_DISPLAY;
 	u16 FPGAver = Read_FPGA_ver();
 	sprintf(msg,"FW:%d %s",FPGAver&0xFF,ver);
-	DrawHZText12(msg,0,160,3, gl_color_text,1);	
+	DrawHZText12(msg,0,240-strlen(msg)*6-2,3, gl_color_text,1);	
 	Rev = FPGAver & 0xF000;
 }
 //---------------------------------------------------------------------------------
@@ -33,12 +35,15 @@ void Show_help_window()
 	u32 linex= 15;
 	
 	Show_ver();
-	if(gl_select_lang == 0xE1E1)//english
+	//Branch inverted vs original: Chinese manual QR only for 0xE2E2; everything
+	//else (English 0xE1E1 AND Korean 0xE3E3) gets the English manual QR,
+	//because no Korean manual image exists.
+	if(gl_select_lang == 0xE2E2)//chinese
 	{
-		DrawPic((u16*)gImage_English_manual, 240-70, 160-70, 70, 70, 0, 0, 1);//
-	}
-	else{
 		DrawPic((u16*)gImage_Chinese_manual, 240-70, 160-70, 70, 70, 0, 0, 1);//
+	}
+	else{//english + korean
+		DrawPic((u16*)gImage_English_manual, 240-70, 160-70, 70, 70, 0, 0, 1);//
 	}
 	DrawHZText12("L + R + START :",0,3,20+linex*0, gl_color_selected,1);
 		DrawHZText12(gl_LRSTART_help,0,92,20+linex*0, gl_color_text,1);
